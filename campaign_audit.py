@@ -19,8 +19,8 @@ RESULT_FILE = "result.csv"
 # ---------------------------------------------------------------------------
 # 1. READING THE DATA
 # ---------------------------------------------------------------------------
-# Changes the text from the CSV into a number (comma becomes a dot).
-# If the cell is empty or not a number, it gives None so the program does not crash.
+# If I give it a text with a comma (like "4,5"), it changes the comma to a point
+# and gives a real number to Python. If the cell is empty, it gives None.
 def parse_number(text):
     """Convert a raw cell like '11088,60' into a float.
     Returns None if the cell is empty or not a number (no crash)."""
@@ -34,8 +34,8 @@ def parse_number(text):
     except ValueError:
         return None
 
-# Reads the CSV file (separator ;) and returns a list of campaigns.
-# Numbers are converted with parse_number.
+# It opens the CSV file and reads it line by line and the columns are separated by ;.
+# For each campaign it makes a card with the data and returns the list of cards.
 def read_campaigns(path):
     """Read the raw CSV (separator ';', BOM, an empty column) and return a list
     of dicts with clean numeric values. Raises FileNotFoundError if missing."""
@@ -64,8 +64,8 @@ def read_campaigns(path):
 # ---------------------------------------------------------------------------
 # 2. COMPUTING THE INDICATORS
 # ---------------------------------------------------------------------------
-# Computes CTR, CPA and ROAS for each campaign.
-# Removes campaigns without impressions. If 0 conversions, CPA stays None.
+# It calculates the CTR, CPA and ROAS for each campaign.
+# If there are no impressions, it skips the campaign. If there are 0 conversions, there is no CPA.
 def compute_metrics(campaigns):
     """Add ctr, cpa, roas to each campaign and return only the valid ones.
     Rule 1: empty impressions -> campaign excluded from everything.
@@ -87,7 +87,8 @@ def compute_metrics(campaigns):
 # ---------------------------------------------------------------------------
 # 3. COMPUTING THE CORRECT ANSWERS (written nowhere, computed here)
 # ---------------------------------------------------------------------------
-# Finds the 5 correct answers of the quiz from the campaigns.
+# This function calculates the right answers of the quiz by itself.
+# For example, it counts the campaigns with a ROAS above 3.
 def compute_answers(valid):
     """Return the five correct answers computed from the valid campaigns."""
     best_ctr = max(valid, key=lambda c: c["ctr"])["name"]
@@ -120,7 +121,9 @@ QUESTIONS = [
     "5. What is the average CTR across all campaigns (in %, two decimals)?",
 ]
 
-# Compares the player's answer with the correct one, without crashing.
+# It compares the player answer with the correct answer.
+# It accepts capital or small letters, and a comma or a point in a number.
+# If the player types something wrong, it does not crash, it just says it is wrong.
 def check_answer(index, given, correct):
     """Compare the player's answer with the correct one. Never crashes."""
     given = given.strip()
@@ -134,7 +137,8 @@ def check_answer(index, given, correct):
         return number is not None and abs(number - correct) < 0.005
     return given.lower() == str(correct).lower()  # text answers
 
-# Asks the 5 questions and returns the score.
+# It asks the questions to the player and compares each answer with the function check_answer.
+# It gives one point for each correct answer and returns the final score.
 def play_quiz(answers):
     """Ask the 5 questions and return the score."""
     score = 0
@@ -154,7 +158,8 @@ def play_quiz(answers):
 # ---------------------------------------------------------------------------
 # 5. SAVING THE RESULT
 # ---------------------------------------------------------------------------
-# Writes the name, score and date in result.csv.
+# It creates a file named result.csv with the name, the score and the date.
+# If the file does not exist, it creates it, and you can see it in the list of files on the left.
 def save_result(player, score, path=RESULT_FILE):
     """Write player name, score and date in result.csv (header added once)."""
     is_new = not os.path.exists(path)
@@ -168,7 +173,8 @@ def save_result(player, score, path=RESULT_FILE):
 # ---------------------------------------------------------------------------
 # MAIN
 # ---------------------------------------------------------------------------
-# Runs all the steps in order and shows which function fails.
+# This is the main function. It runs all the other functions in order.
+# If something goes wrong, it tells which function has a problem and does not crash.
 def main():
     try:
         campaigns = read_campaigns(CSV_FILE)
