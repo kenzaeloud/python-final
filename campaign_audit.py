@@ -1,10 +1,11 @@
 """
-campaign_audit.py - Campaign Audit Quiz (Session 8)
+campaign_audit.py - Campaign Audit Quiz
 
-TODO (to rewrite in YOUR words - the grading wants your own comments):
-- What the program does: reads campaigns_A.csv, computes CTR / CPA / ROAS,
-  asks 5 questions, scores the player, writes result.csv.
-- What is missing / what I would have done: (fill in if something is unfinished)
+   This program reads the campaigns file, calculates CTR, CPA and ROAS,
+   asks 5 questions to the player and gives the score,
+   then it saves the result in result.csv.
+
+What is missing: nothing, the program is complete.
 """
 
 import csv
@@ -18,7 +19,8 @@ RESULT_FILE = "result.csv"
 # ---------------------------------------------------------------------------
 # 1. READING THE DATA
 # ---------------------------------------------------------------------------
-
+# Changes the text from the CSV into a number (comma becomes a dot).
+# If the cell is empty or not a number, it gives None so the program does not crash.
 def parse_number(text):
     """Convert a raw cell like '11088,60' into a float.
     Returns None if the cell is empty or not a number (no crash)."""
@@ -32,7 +34,8 @@ def parse_number(text):
     except ValueError:
         return None
 
-
+# Reads the CSV file (separator ;) and returns a list of campaigns.
+# Numbers are converted with parse_number.
 def read_campaigns(path):
     """Read the raw CSV (separator ';', BOM, an empty column) and return a list
     of dicts with clean numeric values. Raises FileNotFoundError if missing."""
@@ -61,7 +64,8 @@ def read_campaigns(path):
 # ---------------------------------------------------------------------------
 # 2. COMPUTING THE INDICATORS
 # ---------------------------------------------------------------------------
-
+# Computes CTR, CPA and ROAS for each campaign.
+# Removes campaigns without impressions. If 0 conversions, CPA stays None.
 def compute_metrics(campaigns):
     """Add ctr, cpa, roas to each campaign and return only the valid ones.
     Rule 1: empty impressions -> campaign excluded from everything.
@@ -83,7 +87,7 @@ def compute_metrics(campaigns):
 # ---------------------------------------------------------------------------
 # 3. COMPUTING THE CORRECT ANSWERS (written nowhere, computed here)
 # ---------------------------------------------------------------------------
-
+# Finds the 5 correct answers of the quiz from the campaigns.
 def compute_answers(valid):
     """Return the five correct answers computed from the valid campaigns."""
     best_ctr = max(valid, key=lambda c: c["ctr"])["name"]
@@ -116,7 +120,7 @@ QUESTIONS = [
     "5. What is the average CTR across all campaigns (in %, two decimals)?",
 ]
 
-
+# Compares the player's answer with the correct one, without crashing.
 def check_answer(index, given, correct):
     """Compare the player's answer with the correct one. Never crashes."""
     given = given.strip()
@@ -130,7 +134,7 @@ def check_answer(index, given, correct):
         return number is not None and abs(number - correct) < 0.005
     return given.lower() == str(correct).lower()  # text answers
 
-
+# Asks the 5 questions and returns the score.
 def play_quiz(answers):
     """Ask the 5 questions and return the score."""
     score = 0
@@ -150,7 +154,7 @@ def play_quiz(answers):
 # ---------------------------------------------------------------------------
 # 5. SAVING THE RESULT
 # ---------------------------------------------------------------------------
-
+# Writes the name, score and date in result.csv.
 def save_result(player, score, path=RESULT_FILE):
     """Write player name, score and date in result.csv (header added once)."""
     is_new = not os.path.exists(path)
@@ -164,7 +168,7 @@ def save_result(player, score, path=RESULT_FILE):
 # ---------------------------------------------------------------------------
 # MAIN
 # ---------------------------------------------------------------------------
-
+# Runs all the steps in order and shows which function fails.
 def main():
     try:
         campaigns = read_campaigns(CSV_FILE)
